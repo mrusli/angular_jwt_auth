@@ -10,7 +10,6 @@ export class TokenInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> { 
     if (req.url.includes("signin")) {
       console.log("TokenInterceptor: Skipping token addition for login request");
-      return next.handle(req);
       return next.handle(req); // Ensure a return statement in all cases
     }
     
