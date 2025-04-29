@@ -1,15 +1,17 @@
 import { HttpClient, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { inject } from "@angular/core";
-import { BehaviorSubject, catchError, finalize, Observable, switchMap, throwError } from "rxjs";
+import { BehaviorSubject, catchError, filter, finalize, Observable, switchMap, take, throwError } from "rxjs";
 
 export class TokenInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private http = inject(HttpClient);
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> { 
-    if (req.url.includes("signin")) {
-      console.log("TokenInterceptor: Skipping token addition for login request");
+  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    const reqUrl = ["signin", "signup", "refreshtoken"];
+    const containsAny = reqUrl.some((url) => req.url.includes(url));
+    if (containsAny) {
+      console.log("TokenInterceptor: Skipping token addition for login, refreshtoken, signup request");
       return next.handle(req); // Ensure a return statement in all cases
     }
     
@@ -30,9 +32,9 @@ export class TokenInterceptor implements HttpInterceptor {
           
           return throwError(() => error);
         }),
-        finalize(() => {
-          console.log("TokenInterceptor: Request completed");
-        })
+        // finalize(() => {
+        //   console.log("TokenInterceptor: Request completed");
+        // })
       );
     }
 
@@ -45,24 +47,36 @@ export class TokenInterceptor implements HttpInterceptor {
       this.isRefreshing = true;
       this.refreshTokenSubject.next(null);
 
-      const refreshToken = localStorage.getItem('refreshToken'); // Assuming you have a refresh token stored
-      console.log("TokenInterceptor: Refreshing token using refresh token", refreshToken);
+      const refToken = localStorage.getItem('refreshToken'); // Assuming you have a refresh token stored
+      console.log("TokenInterceptor: Refreshing token using refresh token", refToken);
       
-      if (refreshToken) {
-        return this.http.post('http://localhost:8080/api/auth/refresh-token', { token: refreshToken }).pipe(
+      if (refToken) {
+        return this.http.post('http://localhost:8080/api/auth/refreshtoken', { refreshToken: refToken }).pipe(
           switchMap((tokenResponse: any) => {
+            this.isRefreshing = false;
+            console.log("TokenInterceptor: Token refreshed successfully", tokenResponse);
+            
             const newToken = tokenResponse.accessToken; // Adjust based on your response structure
-            localStorage.setItem('accessToken', newToken);
+            
+            localStorage.clear();
+            localStorage.setItem("accessToken", tokenResponse.tokenType + " " + tokenResponse.accessToken);
+            localStorage.setItem("refreshToken", tokenResponse.refreshToken);
 
-            this.refreshTokenSubject.next(newToken);
+            this.refreshTokenSubject.next(tokenResponse );
             return next.handle(req);
           }),
-          finalize(() => {
+          catchError((error) => {
             this.isRefreshing = false;
+            console.error('Error occurred while refreshing token', error);
+            return throwError(() => error);
           })
+          // finalize(() => {
+          //   this.isRefreshing = false;
+          // })
         );
-      }
+      } 
     }
+    
     return throwError(() => new Error('Refresh token is missing or request already in progress.'));
   }
 }
