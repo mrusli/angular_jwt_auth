@@ -32,10 +32,12 @@ There's an interceptor that intercept the network traffic from the app to the ba
     }
 
 The interceptor performs 2 main functions:
-1. 'Clone' the request to add authorization information (access token)
+1. 'Clone' the request to add authorization information (access token):
+
       const cloned = req.clone({
         headers: req.headers.set('Authorization', token)
       });
+
 2. Handle the 401 error in which, most likely requires token refresh to obtain new access token:
         if (error.status === 401) {
           return this.handle401Error(req, next);
