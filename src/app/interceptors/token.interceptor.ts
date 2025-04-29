@@ -1,14 +1,16 @@
 import { HttpClient, HttpEvent, HttpHandler, HttpInterceptor, HttpRequest } from "@angular/common/http";
 import { inject } from "@angular/core";
+import { Router } from "@angular/router";
 import { BehaviorSubject, catchError, filter, finalize, Observable, switchMap, take, throwError } from "rxjs";
 
 export class TokenInterceptor implements HttpInterceptor {
   private isRefreshing = false;
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
   private http = inject(HttpClient);
+  private router = inject(Router);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const reqUrl = ["signin", "signup", "refreshtoken"];
+    const reqUrl = ["signin", "signup", "refreshtoken", "all"];
     const containsAny = reqUrl.some((url) => req.url.includes(url));
     if (containsAny) {
       console.log("TokenInterceptor: Skipping token addition for login, refreshtoken, signup request");
@@ -56,18 +58,23 @@ export class TokenInterceptor implements HttpInterceptor {
             this.isRefreshing = false;
             console.log("TokenInterceptor: Token refreshed successfully", tokenResponse);
             
-            const newToken = tokenResponse.accessToken; // Adjust based on your response structure
+            // const newToken = tokenResponse.accessToken; // Adjust based on your response structure
             
             localStorage.clear();
             localStorage.setItem("accessToken", tokenResponse.tokenType + " " + tokenResponse.accessToken);
             localStorage.setItem("refreshToken", tokenResponse.refreshToken);
 
-            this.refreshTokenSubject.next(tokenResponse );
-            return next.handle(req);
+            this.refreshTokenSubject.next(tokenResponse);
+            
+            const cloned = req.clone({
+              headers: req.headers.set('Authorization', tokenResponse.tokenType + " " + tokenResponse.accessToken)
+            });
+            return next.handle(cloned);
           }),
           catchError((error) => {
             this.isRefreshing = false;
-            console.error('Error occurred while refreshing token', error);
+            console.error('Error occurred while refreshing token (refreshToken expired). Please re-login.', error);
+            this.router.navigateByUrl('/login');
             return throwError(() => error);
           })
           // finalize(() => {
@@ -75,6 +82,18 @@ export class TokenInterceptor implements HttpInterceptor {
           // })
         );
       } 
+    } else {
+      return this.refreshTokenSubject.pipe(
+        filter(tokenResponse => tokenResponse != null),
+        take(1),
+        switchMap((tokenResponse) => {
+          const newToken = tokenResponse.accessToken; // Adjust based on your response structure
+          const cloned = req.clone({
+            headers: req.headers.set('Authorization', tokenResponse.tokenType + " " + newToken)
+          });
+          return next.handle(cloned);
+        }),
+      );
     }
     
     return throwError(() => new Error('Refresh token is missing or request already in progress.'));
