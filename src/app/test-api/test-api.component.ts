@@ -44,4 +44,15 @@ export class TestAPIComponent {
       }
     });
   }
+
+  onAllCustomerClick() {
+    this.http.get("http://localhost:8085/api/customer/all").subscribe({
+      next: (response:any) => {
+        console.log(response.message);
+      },
+      error: (error) => {
+        console.error('Error fetching data', error);
+      }
+    });
+  }
 }

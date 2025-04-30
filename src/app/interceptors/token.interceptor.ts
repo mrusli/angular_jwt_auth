@@ -10,7 +10,7 @@ export class TokenInterceptor implements HttpInterceptor {
   private router = inject(Router);
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    const reqUrl = ["signin", "signup", "refreshtoken", "all"];
+    const reqUrl = ["signin", "signup", "refreshtoken"];
     const containsAny = reqUrl.some((url) => req.url.includes(url));
     if (containsAny) {
       console.log("TokenInterceptor: Skipping token addition for login, refreshtoken, signup request");
