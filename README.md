@@ -1,5 +1,7 @@
 # AngularJwtAuth
 
+Ref: https://www.javaguides.net/2024/05/angular-spring-boot-file-upload-and-download-example.html
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.10.  AngularJwtAuth is an experimental authorization using Jwt access token and refresh token.  This application works with spring boot jwt-authentication (https://github.com/mrusli/jwt-authentication), acting as the back-end to interact with database.  The jwt-authentication app must be operational before this angular project is functional.
 
 1. Access the login page: http://localhost:4200/login.
