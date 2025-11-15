@@ -1,16 +1,29 @@
+import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, inject } from '@angular/core';
 
 @Component({
   selector: 'app-test-api',
   standalone: true,
-  imports: [],
+  imports: [ CommonModule],
   templateUrl: './test-api.component.html',
   styleUrl: './test-api.component.css'
 })
 export class TestAPIComponent {
 
   http = inject(HttpClient);
+
+  alphabets: string[] = [];
+  currentAlpha: string = "A";
+
+  constructor() {
+    this.alphabets = Array.from(Array(26)).map((_, i) => String.fromCharCode(i + 65));
+  }
+
+  alphaClick(alpha: string) {
+    console.log(alpha);
+    this.currentAlpha = alpha;
+  }
 
   onAllClick() {
     this.http.get("https://localhost:8443/api/test/all").subscribe({
@@ -55,4 +68,12 @@ export class TestAPIComponent {
       }
     });
   }
+
+  currentComponent : string = "Roles";
+
+  changeTab(arg0: string) {
+    this.currentComponent = arg0;
+  }
+
+
 }

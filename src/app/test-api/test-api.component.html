@@ -1,5 +1,5 @@
 <div class="col-md-12">
-    <div class="card">
+    <div class="card mb-3">
         <div class="card-header">
             <h3>Test API</h3>
         </div>
@@ -12,4 +12,31 @@
             <button (click)="onAllCustomerClick()" class="btn btn-primary mx-1">All Customer</button>
         </div>
     </div>
+    <div class="btn-group mb-3">
+        <button type="button" (click)="changeTab('Roles')" class="btn"
+            [ngClass]="currentComponent == 'Roles' ? 'btn-success' : 'btn-primary'">Roles</button>
+        <button type="button" (click)="changeTab('Designation')" class="btn"
+            [ngClass]="currentComponent == 'Designation' ? 'btn-success' : 'btn-primary'">Designation</button>
+    </div>
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page">Active</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link">Link</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link">Link</a>
+        </li>
+    </ul>
+    <ul class="nav nav-tabs">
+        <li *ngFor="let alpha of alphabets" class="nav-item">
+          <a class="nav-link" (click)="alphaClick(alpha)" 
+            [ngClass]="currentAlpha == alpha ? 'active' : ''"
+            >{{alpha}}</a>
+        </li>
+    </ul>
 </div>

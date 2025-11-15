@@ -61,7 +61,7 @@ export class TokenInterceptor implements HttpInterceptor {
             // const newToken = tokenResponse.accessToken; // Adjust based on your response structure
             
             localStorage.clear();
-            localStorage.setItem("accessToken", tokenResponse.tokenType + " " + tokenResponse.accessToken);
+            localStorage.setItem("accessToken", tokenResponse.type + " " + tokenResponse.token);
             localStorage.setItem("refreshToken", tokenResponse.refreshToken);
 
             this.refreshTokenSubject.next(tokenResponse);
