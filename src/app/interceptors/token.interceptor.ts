@@ -53,7 +53,7 @@ export class TokenInterceptor implements HttpInterceptor {
       console.log("TokenInterceptor: Refreshing token using refresh token", refToken);
       
       if (refToken) {
-        return this.http.post('http://localhost:8080/api/auth/refreshtoken', { refreshToken: refToken }).pipe(
+        return this.http.post('https://localhost:8443/api/auth/refreshtoken', { refreshToken: refToken }).pipe(
           switchMap((tokenResponse: any) => {
             this.isRefreshing = false;
             console.log("TokenInterceptor: Token refreshed successfully", tokenResponse);

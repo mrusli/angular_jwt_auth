@@ -13,7 +13,7 @@ export class TestAPIComponent {
   http = inject(HttpClient);
 
   onAllClick() {
-    this.http.get("http://localhost:8080/api/test/all").subscribe({
+    this.http.get("https://localhost:8443/api/test/all").subscribe({
       next: (response:any) => {
         console.log(response.message);
       },
@@ -24,7 +24,7 @@ export class TestAPIComponent {
   }
 
   onUserClick() {
-    this.http.get("http://localhost:8080/api/test/user").subscribe({
+    this.http.get("https://localhost:8443/api/test/user").subscribe({
       next: (response:any) => {
         console.log(response.message);
       },
@@ -35,7 +35,7 @@ export class TestAPIComponent {
   }
 
   onModClick() {
-    this.http.get("http://localhost:8080/api/test/mod").subscribe({
+    this.http.get("https://localhost:8443/api/test/mod").subscribe({
       next: (response:any) => {
         console.log(response.message);
       },
@@ -46,9 +46,9 @@ export class TestAPIComponent {
   }
 
   onAllCustomerClick() {
-    this.http.get("http://localhost:8085/api/customer/all").subscribe({
+    this.http.get("http://localhost:8085/api/customerbypage/all").subscribe({
       next: (response:any) => {
-        console.log(response.message);
+        console.log(response);
       },
       error: (error) => {
         console.error('Error fetching data', error);
